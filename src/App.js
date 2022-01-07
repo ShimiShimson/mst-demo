@@ -1,23 +1,37 @@
-import logo from './logo.svg';
+import React, { useState, useEffect } from "react";
+import socketIOClient from "socket.io-client";
+
+import Table from "./table/Table.js";
+
 import './App.css';
 
+const ENDPOINT = "https://mst-full-stack-dev-test.herokuapp.com/";
+
 function App() {
+
+  const [response, setResponse] = useState([]);
+
+  useEffect(() => {
+    const socket = socketIOClient(ENDPOINT);
+    socket.on("data-update", data => {
+      setResponse(prevResponse => {
+        return [...prevResponse, data];
+      })
+    });
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+    <div className="main">
+      <header>
+        <h2>List of Golf players</h2>
       </header>
+      {
+        !response.length
+          ? <p>No players registered yet!</p>
+          : <div className="table">
+            <Table response={response} />
+          </div>
+      }
     </div>
   );
 }
